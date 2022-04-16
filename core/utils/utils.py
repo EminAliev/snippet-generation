@@ -17,6 +17,15 @@ def read_file(file_name):
     sentences.pop() 
     
     return sentences
+    
+def read_text(text):
+    article = text.split(". ")
+    sentences = []
+    for sentence in article:
+        sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
+    sentences.pop() 
+    
+    return sentences
 
 
 def stop_word_process(word):

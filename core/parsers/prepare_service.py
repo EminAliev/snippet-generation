@@ -1,6 +1,7 @@
 import requests
-import re
 import feedparser
+from bs4 import BeautifulSoup
+
 
 class PrepareService:
 
@@ -28,10 +29,11 @@ class PrepareService:
       return parsed_feed
       
     def get_only_text(self, url):
-      page = urllib.request.urlopen(url).read().decode('utf8')
-      soup = BeautifulSoup(page)
+      page = requests.get(url=url, verify=False)
+      page_text = page.text
+      soup = BeautifulSoup(page_text)
       text = ' '.join(map(lambda p: p.text, soup.find_all('p')))
-      return soup.title.text, text
+      return text
        
     
 

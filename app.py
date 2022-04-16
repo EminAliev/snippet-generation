@@ -25,17 +25,18 @@ async def create_snippet(file: Optional[UploadFile] = File(None), url: Optional[
             await out_file.write(content)
         rss_feed = prepare_service.parse_rss_feed(file_path)
         for i, entry in enumerate(rss_feed):    
-            url_news = prepare_service.get_only_text(entry[i]['url'])
-            title = entry[i]['title']
-            snippet = snippet_service.generate_snippet(url_news)
+            url_news = prepare_service.get_only_text(entry['url'])
+            title = entry['title']
+            snippet = snippet_service.generate_snippet(file_name=url_news)
             result[title] = snippet
     else:
         rss_feed = prepare_service.read_feed(url)
         rss_result = prepare_service.parse_rss_feed(rss_feed)
-        for i, entry in enumerate(rss_feed):    
-            url_news = prepare_service.get_only_text(entry[i]['url'])
-            title = entry[i]['title']
-            snippet = snippet_service.generate_snippet(url_news)
+        for i, entry in enumerate(rss_result):
+            url_news = prepare_service.get_only_text(entry['url'])
+            url_news = ''.join(url_news)
+            title = entry['title']
+            snippet = snippet_service.generate_snippet(text=url_news)
             result[title] = snippet
     return result
 
