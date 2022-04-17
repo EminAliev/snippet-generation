@@ -6,8 +6,19 @@ from core.summarization.snippet_service import SnippetGeneration
 from core.parsers.prepare_service import PrepareService
 
 from fastapi import Form, FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 upload_folder = os.path.dirname(__file__) + '\\upload\\'
 
