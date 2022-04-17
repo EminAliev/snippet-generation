@@ -9,7 +9,6 @@ from fastapi import Form, FastAPI, File, UploadFile
 
 app = FastAPI()
 
-
 upload_folder = os.path.dirname(__file__) + '\\upload\\'
 
 
@@ -21,10 +20,10 @@ async def create_snippet(file: Optional[UploadFile] = File(None), url: Optional[
     if file:
         file_path = upload_folder + f'{file.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
-            content = await file.read()  
+            content = await file.read()
             await out_file.write(content)
         rss_feed = prepare_service.parse_rss_feed(file_path)
-        for i, entry in enumerate(rss_feed):    
+        for i, entry in enumerate(rss_feed):
             url_news = prepare_service.get_only_text(entry['url'])
             title = entry['title']
             snippet = snippet_service.generate_snippet(file_name=url_news)
@@ -39,6 +38,7 @@ async def create_snippet(file: Optional[UploadFile] = File(None), url: Optional[
             snippet = snippet_service.generate_snippet(text=url_news)
             result[title] = snippet
     return result
+
 
 if __name__ == '__main__':
     uvicorn.run(app=app)

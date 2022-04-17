@@ -7,6 +7,7 @@ MIN_WORD_LENGTH = 4
 nltk.download("stopwords")
 nltk.download("wordnet")
 
+
 def read_file(file_name):
     file = open(file_name, "r", encoding="utf-8")
     data = file.readlines()
@@ -14,17 +15,18 @@ def read_file(file_name):
     sentences = []
     for sentence in article:
         sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
-    sentences.pop() 
-    
+    sentences.pop()
+
     return sentences
-    
+
+
 def read_text(text):
     article = text.split(". ")
     sentences = []
     for sentence in article:
         sentences.append(sentence.replace("[^a-zA-Z]", " ").split(" "))
-    sentences.pop() 
-    
+    sentences.pop()
+
     return sentences
 
 
