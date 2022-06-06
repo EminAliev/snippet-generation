@@ -1,28 +1,17 @@
-import re
-
 import uvicorn
 import os
 import aiofiles
 from typing import Optional
-
-from nltk import word_tokenize
-
 from core.summarization.snippet_service import SnippetGeneration
 from core.parsers.prepare_service import PrepareService
 from core.dto.db_service import DbService
 
-from fastapi import Form, FastAPI, File, UploadFile, Request
+from fastapi import Form, FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
 
 origins = ["*"]
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,17 +24,8 @@ app.add_middleware(
 upload_folder = os.path.dirname(__file__) + '\\upload\\'
 
 
-def ru_token(string):
-    return [i for i in word_tokenize(string) if re.match(r'[\u0400-\u04ffа́]+$', i)]
-
-
-@app.get("/snippet/create")
-def create_snippet(request: Request):
-    return templates.TemplateResponse('index.html', context={'request': request})
-
-
 @app.post("/snippet/create")
-async def create_snippet(request: Request, file: Optional[UploadFile] = File(None), url: Optional[str] = Form(None)):
+async def create_snippet(file: Optional[UploadFile] = File(None), url: Optional[str] = Form(None)):
     result = {}
     prepare_service = PrepareService()
     snippet_service = SnippetGeneration()
@@ -73,31 +53,16 @@ async def create_snippet(request: Request, file: Optional[UploadFile] = File(Non
             url_news = prepare_service.get_only_text(entry['url'])
             url_news = ''.join(url_news)
             title = entry['title']
-            snippet, score = snippet_service.generate_snippet(text=url_news)
-            result[title] = [snippet, score]
+            snippet = snippet_service.generate_snippet(text=url_news)
+            result[title] = snippet
             db_service.insert_snippets(title=title, snippet=snippet, feed_id=feed_id)
-            print(result)
-    return templates.TemplateResponse("snippet-view.html", {"request": request, "snippet": dict(result)})
+
+    return result
 
 
 @app.get('/feeds')
-async def list_feeds(request: Request):
-    result = {}
-    db_service = DbService()
-    feeds = db_service.get_all_feeds()
-    for feed in feeds:
-        result[feed[1]] = feed[0], feed[2]
-    return templates.TemplateResponse("feeds.html", {"request": request, "feeds": result})
-
-
-@app.get('/feed/{feed_id}')
-async def feed_view(request: Request, feed_id):
-    result = {}
-    db_service = DbService()
-    snippets = db_service.get_snippets_from_feed(feed_id=feed_id)
-    for snippet in snippets:
-        result[snippet[0]] = snippet[1]
-    return templates.TemplateResponse("feed_view.html", {"request": request, "snippets": result})
+async def list_feeds():
+    pass
 
 
 if __name__ == '__main__':
