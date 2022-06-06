@@ -61,8 +61,24 @@ async def create_snippet(file: Optional[UploadFile] = File(None), url: Optional[
 
 
 @app.get('/feeds')
-async def list_feeds():
-    pass
+async def list_feeds(request: Request):
+    result = {}
+    db_service = DbService()
+    feeds = db_service.get_all_feeds()
+    for feed in feeds:
+        result[feed[1]] = feed[0], feed[2]
+    return result
+
+
+@app.get('/feed/{feed_id}')
+async def feed_view(request: Request, feed_id):
+    result = {}
+    db_service = DbService()
+    snippets = db_service.get_snippets_from_feed(feed_id=feed_id)
+    for snippet in snippets:
+        result[snippet[0]] = snippet[1]
+    return result
+
 
 
 if __name__ == '__main__':
